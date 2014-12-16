@@ -1,7 +1,7 @@
 language: rust
 
 install:
-  - apt-get install haskell-platform
+  - sudo apt-get install haskell-platform
   - cabal update
   - cabal install pandoc
 
