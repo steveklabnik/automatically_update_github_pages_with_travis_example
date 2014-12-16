@@ -3,6 +3,9 @@
 Do you want to update Github Pages automatically, and use Travis CI? You've
 come to the right place.
 
+You can also view the rendered output
+[here](http://steveklabnik.github.io/automatically_update_github_pages_with_travis_example/).
+
 # The problem
 
 Here's a few things, which when combined, cause a problem.
