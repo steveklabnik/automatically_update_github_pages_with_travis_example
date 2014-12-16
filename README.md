@@ -7,8 +7,8 @@ come to the right place.
 
 Both versions:
 
-- [rendered](http://steveklabnik.github.io/automatically_update_github_pages_with_travis_example/).
-- [repository](https://github.com/steveklabnik/automatically_update_github_pages_with_travis_example)
+- [rendered](http://steveklabnik.github.io/automatically_update_github_pages_with_travis_example/)
+- [source](https://github.com/steveklabnik/automatically_update_github_pages_with_travis_example)
 
 # The problem
 
