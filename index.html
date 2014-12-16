@@ -1,6 +1,11 @@
 <h1 id="automatically-update-github-pages-with-travis-example">Automatically Update Github Pages with Travis Example</h1>
 <p>Do you want to update Github Pages automatically, and use Travis CI? You've come to the right place.</p>
-<p>You can also view the rendered output <a href="http://steveklabnik.github.io/automatically_update_github_pages_with_travis_example/">here</a>.</p>
+<p><a href="https://travis-ci.org/steveklabnik/automatically_update_github_pages_with_travis_example"><img src="https://travis-ci.org/steveklabnik/automatically_update_github_pages_with_travis_example.svg?branch=master" alt="Build Status" /></a></p>
+<p>Both versions:</p>
+<ul>
+<li><a href="http://steveklabnik.github.io/automatically_update_github_pages_with_travis_example/">rendered</a>.</li>
+<li><a href="https://github.com/steveklabnik/automatically_update_github_pages_with_travis_example">repository</a></li>
+</ul>
 <h1 id="the-problem">The problem</h1>
 <p>Here's a few things, which when combined, cause a problem.</p>
 <ol style="list-style-type: decimal">
@@ -117,4 +122,4 @@ $   <span class="kw">travs</span> encrypt GH_TOKEN=<span class="ot">$MY_ACCESS_T
 <h2 id="success">Success!</h2>
 <p>That's it! Commit this all, and push. Travis should now do its magic, and everything will update!</p>
 <h2 id="feedback-please">Feedback please</h2>
-<p>I'd love to know if there's a better way to do any of this. In particular, I'd love to add the local git repo rather than the one from GitHub when fetching the <code>upstream</code>, but since Travis checks out a bare repository, it doesn't seem possible. Please open an issue or PR to show me how to do it better!</p>
+<p>I'd love to know if there's a better way to do any of this. In particular, I'd love to add the local git repo rather than the one from GitHub when fetching the <code>upstream</code>, but since Travis checks out a bare repository, it doesn't seem possible. Please <a href="https://github.com/steveklabnik/automatically_update_github_pages_with_travis_example/issues/new2">open an issue</a> or PR to show me how to do it better!</p>
