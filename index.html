@@ -1,0 +1,119 @@
+<h1 id="automatically-update-github-pages-with-travis-example">Automatically Update Github Pages with Travis Example</h1>
+<p>Do you want to update Github Pages automatically, and use Travis CI? You've come to the right place.</p>
+<h1 id="the-problem">The problem</h1>
+<p>Here's a few things, which when combined, cause a problem.</p>
+<ol style="list-style-type: decimal">
+<li>Checking in generated files is considered poor practice.</li>
+<li>Often, web pages aren't in HTML directly: they're generated from some other file.</li>
+<li><code>master</code> is the default branch of <code>git</code> repositories.</li>
+<li><code>gh-pages</code> is the default branch for Github Pages.</li>
+</ol>
+<p>Our source files end up on one branch, but we need to move the generated files to another branch. And of course, we don't want to just do this on every build, but on successful CI builds of master. Whew!</p>
+<p>This repository follows its own advice. You can see it here, here, and here.</p>
+<h1 id="the-solution">The solution</h1>
+<p>Follow these steps:</p>
+<h2 id="ensure-you-have-gh-pages">Ensure you have <code>gh-pages</code></h2>
+<p>You want to make sure your branch already exists.</p>
+<pre class="sourceCode bash"><code class="sourceCode bash">$ <span class="kw">git</span> checkout master
+$ <span class="kw">git</span> checkout -b gh-pages
+$ <span class="kw">git</span> push origin -u gh-pages
+$ <span class="kw">git</span> checkout master</code></pre>
+<p>Easy enough.</p>
+<h2 id="find-out-your-github-api-token">Find out your Github API token</h2>
+<p>Click <a href="https://github.com/settings/tokens/new">this link</a> to generate a new Personal access token. You might need to re-enter your password.</p>
+<p>You'll need to check some boxes. Check these ones:</p>
+<div class="figure">
+<img src="img/token.png" alt="github token setting" /><p class="caption">github token setting</p>
+</div>
+<p>That's right, just <code>repo</code>. If your repository is public, you can set <code>public_repo</code> instead.</p>
+<p>GitHub will create the token, and show you a flash with the value.</p>
+<p><strong>THIS IS THE ONLY TIME YOU GET TO SEE THIS SO DON'T CLICK AWAY IMMEDIATELY!</strong></p>
+<p>You'll need to copy this token into someplace you trust. I wrote mine down, so I could just light the paper on fire afterward. :wink:. It'll never be shown to you after this time, so it's important to double-check your work.</p>
+<h2 id="set-up-travis">Set up Travis</h2>
+<p>Check out <a href="http://docs.travis-ci.com/user/encryption-keys/">this page on encryption with Travis</a>. Here's the TL;DR:</p>
+<pre class="sourceCode bash"><code class="sourceCode bash">$ <span class="kw">gem</span> install travis <span class="co"># install Ruby first if you need to! This might need `sudo`</span>
+$   <span class="kw">travs</span> encrypt GH_TOKEN=<span class="ot">$MY_ACCESS_TOKEN</span></code></pre>
+<p>Where <code>$MY_ACCESS_TOKEN</code> is the token you wrote down. Note that I put some spaces before <code>travs</code>. If you have <code>bash</code> configured in this common way, this makes sure the command doesn't end up in your Bash History. Can't be too safe with those tokens.</p>
+<p>This will spit out something like this:</p>
+<pre class="text"><code>secure: &quot;oFD/tic8JAwpMXuMDBZXV4ot6w1NLWvHQnrDKmUHSMQJC1cbbrR1p5q8XayfjtmdqQdFQmIfM6YHEKeHw//ypgObWjYS8q00OaaMDXPTdmgr1Ee4nhgkkDihT+kVij0rn96W/QvyAVoaV5hJoyUr3Nhk+mnHEYm3M+Q3LAQglRg=&quot;</code></pre>
+<p>You need to put this in your <code>.travis.yml</code>!</p>
+<h2 id="edit-your-.travis.yml">Edit your .travis.yml</h2>
+<p>Here's what this should look like:</p>
+<pre class="sourceCode bash"><code class="sourceCode bash"><span class="kw">language</span>: something
+<span class="kw">script</span>:
+  <span class="kw">-</span> make check
+  <span class="kw">-</span> make generate
+<span class="kw">after_success</span>:
+  <span class="kw">-</span> test <span class="ot">$TRAVIS_PULL_REQUEST</span> == <span class="st">&quot;false&quot;</span> <span class="kw">&amp;&amp;</span> <span class="kw">test</span> <span class="ot">$TRAVIS_BRANCH</span> == <span class="st">&quot;master&quot;</span> <span class="kw">&amp;&amp;</span> <span class="kw">bash</span> deploy.sh
+<span class="kw">env</span>:
+  <span class="kw">global</span>:
+    <span class="kw">-</span> secure: <span class="st">&quot;oFD/tic8JAwpMXuMDBZXV4ot6w1NLWvHQnrDKmUHSMQJC1cbbrR1p5q8XayfjtmdqQdFQmIfM6YHEKeHw//ypgObWjYS8q00OaaMDXPTdmgr1Ee4nhgkkDihT+kVij0rn96W/QvyAVoaV5hJoyUr3Nhk+mnHEYm3M+Q3LAQglRg=&quot;</span></code></pre>
+<p>Let's go over this, line by line:</p>
+<pre class="sourceCode yaml"><code class="sourceCode yaml"><span class="fu">language:</span> something</code></pre>
+<p>This should be set to whatever the language is of your project. What happens if your project's build tool is different than your project itself? You may need to add an <code>install</code> line to install the other tool.</p>
+<p>As an example, if you have a JavaScript project that uses <a href="https://www.gitbook.com/">gitbook</a>, you might have this:</p>
+<pre class="sourceCode yaml"><code class="sourceCode yaml"><span class="fu">language:</span> node_js
+<span class="fu">install:</span> npm install gitbook</code></pre>
+<p>Next, our actual build:</p>
+<pre class="sourceCode yaml"><code class="sourceCode yaml"><span class="fu">script:</span>
+  <span class="kw">-</span> make check
+  <span class="kw">-</span> make generate</code></pre>
+<p>This changes based on whatever your build actually is. I show this section because you will generally want two commands: one to build your project, and one to build the actual documentation.</p>
+<pre class="sourceCode yaml"><code class="sourceCode yaml"><span class="fu">after_success:</span>
+  <span class="kw">-</span> test $TRAVIS_PULL_REQUEST == <span class="st">&quot;false&quot;</span> &amp;&amp; test $TRAVIS_BRANCH == <span class="st">&quot;master&quot;</span> &amp;&amp; bash deploy.sh</code></pre>
+<p>If we have a successful build, we want to check out where we are. We only want to update Github Pages if we're building the master branch of the original repository, so we have to check <code>$TRAVIS_PULL_REQUEST</code> and <code>$TRAVIS_BRANCH</code>.</p>
+<p>If we are, we run <code>bash deploy.sh</code>. What's the contents of <code>deploy.sh</code>? We'll talk about that in a moment. We have one more line to cover:</p>
+<pre class="sourceCode yaml"><code class="sourceCode yaml"><span class="fu">env:</span>
+  <span class="fu">global:</span>
+    <span class="kw">-</span> <span class="fu">secure:</span> <span class="st">&quot;oFD/tic8JAwpMXuMDBZXV4ot6w1NLWvHQnrDKmUHSMQJC1cbbrR1p5q8XayfjtmdqQdFQmIfM6YHEKeHw//ypgObWjYS8q00OaaMDXPTdmgr1Ee4nhgkkDihT+kVij0rn96W/QvyAVoaV5hJoyUr3Nhk+mnHEYm3M+Q3LAQglRg=&quot;</span></code></pre>
+<p>This, of course, should use the value from <code>travis encrypt</code> from before. Remember how we encrypted <code>GH_TOKEN=...</code> before? This will ensure that our <code>GH_TOKEN</code> variable is set to the unencrypted value. That sounds scary, but Travis will <em>not</em> set this on forks or pull requests, so that someone can't just submit a PR that <code>echo</code>es the value out.</p>
+<h2 id="set-up-deploy-script">Set up deploy script</h2>
+<p>Okay, next, we need to add a <code>deploy.sh</code> to our repository. You'll need to tweak this slightly for your setup, but here's the basic idea:</p>
+<pre class="sourceCode bash"><code class="sourceCode bash"><span class="co">#!/bin/bash</span>
+
+<span class="ot">rev=$(</span><span class="kw">git</span> rev-parse --short HEAD<span class="ot">)</span>
+
+<span class="kw">cd</span> stage/_book
+
+<span class="kw">git</span> init
+<span class="kw">git</span> config user.name <span class="st">&quot;Steve Klabnik&quot;</span>
+<span class="kw">git</span> config user.email <span class="st">&quot;steve@steveklabnik.com&quot;</span>
+
+<span class="kw">git</span> remote add upstream <span class="st">&quot;https://</span><span class="ot">$GH_TOKEN</span><span class="st">@github.com/rust-lang/rust-by-example.git&quot;</span>
+<span class="kw">git</span> fetch upstream <span class="kw">&amp;&amp;</span> <span class="kw">git</span> reset upstream/gh-pages
+
+<span class="kw">echo</span> <span class="st">&quot;rustbyexample.com&quot;</span> <span class="kw">&gt;</span> CNAME
+
+<span class="kw">touch</span> .
+
+<span class="kw">git</span> add -A .
+<span class="kw">git</span> commit -m <span class="st">&quot;rebuild pages at </span><span class="ot">${rev}</span><span class="st">&quot;</span>
+<span class="kw">git</span> push -q upstream HEAD:gh-pages</code></pre>
+<p>Let's do it, paragraph by paragraph:</p>
+<pre class="sourceCode bash"><code class="sourceCode bash"><span class="co">#!/bin/bash</span></code></pre>
+<p>The standard shebang line. We don't really need to set this, as we execute it with <code>bash deploy.sh</code>, but I like to put it in anyway.</p>
+<pre class="sourceCode bash"><code class="sourceCode bash"><span class="ot">rev=$(</span><span class="kw">git</span> rev-parse --short HEAD<span class="ot">)</span></code></pre>
+<p>This sets a variable, <code>rev</code>, with the short hash of <code>HEAD</code>. We'll use this later in a commit message.</p>
+<pre class="sourceCode bash"><code class="sourceCode bash"><span class="kw">cd</span> _book</code></pre>
+<p>We need to <code>cd</code> into wherever our website built. With Gitbook, that's <code>_book</code>, with Jekyll, it's <code>_site</code>. But do whatever.</p>
+<pre class="sourceCode bash"><code class="sourceCode bash"><span class="kw">git</span> init
+<span class="kw">git</span> config user.name <span class="st">&quot;Steve Klabnik&quot;</span>
+<span class="kw">git</span> config user.email <span class="st">&quot;steve@steveklabnik.com&quot;</span></code></pre>
+<p>First, we initialize a new <code>git</code> repository. Yes, a new one. You'll see.</p>
+<p>We then set our user name and user email. This person will have done the commits that go to <code>gh-pages</code>. It's not a default branch, so don't worry, GitHub doesn't count these commits as contributions for your graph.</p>
+<pre class="sourceCode bash"><code class="sourceCode bash"><span class="kw">git</span> remote add upstream <span class="st">&quot;https://</span><span class="ot">$GH_TOKEN</span><span class="st">@github.com/me/project.git&quot;</span>
+<span class="kw">git</span> fetch upstream <span class="kw">&amp;&amp;</span> <span class="kw">git</span> reset upstream/gh-pages</code></pre>
+<p>Next, we add a remote, named <code>upstream</code>, and we set it to our project. But we also interpolate that <code>$GH_TOKEN</code> variable, which will allow us to push to this repository later.</p>
+<p>We then <code>fetch</code> it and <code>reset</code> to the <code>gh-pages</code> branch. Now, <code>git</code> sees this new repository as just some files that change your upstream <code>gh-pages</code> branch.</p>
+<pre class="sourceCode bash"><code class="sourceCode bash"><span class="kw">echo</span> <span class="st">&quot;myproject.com&quot;</span> <span class="kw">&gt;</span> CNAME</code></pre>
+<p>Sometimes, you'll need some extra files. A <code>CNAME</code> is common, which sets a custom domain up. You'll need to run whatever commands generate those files for you.</p>
+<pre class="sourceCode bash"><code class="sourceCode bash"><span class="kw">touch</span> .</code></pre>
+<p>We then <code>touch</code> everything, so that <code>git</code> considers all of our local copies fresh.</p>
+<pre class="sourceCode bash"><code class="sourceCode bash"><span class="kw">git</span> add -A .
+<span class="kw">git</span> commit -m <span class="st">&quot;rebuild pages at </span><span class="ot">${rev}</span><span class="st">&quot;</span>
+<span class="kw">git</span> push -q upstream HEAD:gh-pages</code></pre>
+<p>We then add all changes, commit them, using our <code>rev</code> from earlier, and then push to <code>upstream</code>. The <code>-q</code> keeps this a bit more quiet, and you can control the noisiness of all these different <code>git</code> commands with a judicious sprinkling of <code>-q</code>.</p>
+<h2 id="success">Success!</h2>
+<p>That's it! Commit this all, and push. Travis should now do its magic, and everything will update!</p>
+<h2 id="feedback-please">Feedback please</h2>
+<p>I'd love to know if there's a better way to do any of this. In particular, I'd love to add the local git repo rather than the one from GitHub when fetching the <code>upstream</code>, but since Travis checks out a bare repository, it doesn't seem possible. Please open an issue or PR to show me how to do it better!</p>
