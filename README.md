@@ -5,8 +5,10 @@ come to the right place.
 
 [![Build Status](https://travis-ci.org/steveklabnik/automatically_update_github_pages_with_travis_example.svg?branch=master)](https://travis-ci.org/steveklabnik/automatically_update_github_pages_with_travis_example)
 
-You can also view the rendered output
-[here](http://steveklabnik.github.io/automatically_update_github_pages_with_travis_example/).
+Both versions:
+
+- [rendered](http://steveklabnik.github.io/automatically_update_github_pages_with_travis_example/).
+- [repository](https://github.com/steveklabnik/automatically_update_github_pages_with_travis_example)
 
 # The problem
 
@@ -267,4 +269,4 @@ everything will update!
 I'd love to know if there's a better way to do any of this. In particular, I'd
 love to add the local git repo rather than the one from GitHub when fetching
 the `upstream`, but since Travis checks out a bare repository, it doesn't seem
-possible. Please open an issue or PR to show me how to do it better!
+possible. Please [open an issue](https://github.com/steveklabnik/automatically_update_github_pages_with_travis_example/issues/new2) or PR to show me how to do it better!
