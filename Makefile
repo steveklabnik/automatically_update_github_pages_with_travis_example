@@ -6,3 +6,9 @@ check:
 generate: README.md
 	mkdir _site
 	pandoc -o _site/index.html README.md
+
+# This is stupid, but I don't want to make it more complex by detecting
+# if pandoc is already installed or not, so just duplicate
+generate-ci:
+	mkdir _site
+	./pandoc -o _site/index.html README.md

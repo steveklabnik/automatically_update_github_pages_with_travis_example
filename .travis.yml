@@ -1,13 +1,11 @@
 language: rust
 
 install:
-  - sudo apt-get install haskell-platform
-  - cabal update
-  - cabal install pandoc
+  - curl -L https://github.com/yihui/ubuntu-bin/releases/download/latest/pandoc.tar.gz | tar zx
 
 script:
   - make check
-  - make generate
+  - make generate-ci
 
 after_success:
   - test $TRAVIS_PULL_REQUEST == "false" && test $TRAVIS_BRANCH == "master" && bash deploy.sh
