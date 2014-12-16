@@ -1,0 +1,18 @@
+language: rust
+
+install:
+  - apt-get install haskell-platform
+  - cabal update
+  - cabal install pandoc
+
+script:
+  - make check
+  - make generate
+
+after_success:
+  - test $TRAVIS_PULL_REQUEST == "false" && test $TRAVIS_BRANCH == "master" && bash deploy.sh
+
+env:
+  global:
+    - secure: "oFD/tic8JAwpMXuMDBZXV4ot6w1NLWvHQTrDKmUHSMQJC1cbbrR1p5q8XayfjtmdqQdFQmIfM6YHEKeHw//ypgObWjYS8q00OaaMDXPTdmgr1Ee4nhgkkDihT+kVij0rn96W/QvyAVoaV5hJoyUr3Nhk+mnHEYm3M+Q3LAQglRg="
+
