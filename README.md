@@ -264,6 +264,15 @@ judicious sprinkling of `-q`.
 That's it! Commit this all, and push. Travis should now do its magic, and
 everything will update!
 
+## One Drawback
+
+One drawback of this is that if you have a build matrix that builds your
+project with multiple versions of your platform, you'll end up with the
+same number of pages builds. Which seems redundant.
+
+I _think_ I could take advantage of Travis' "deploy" feature to fix this,
+but I'm not sure how.
+
 ## Feedback please
 
 I'd love to know if there's a better way to do any of this. In particular, I'd
