@@ -121,5 +121,8 @@ $   <span class="kw">travs</span> encrypt GH_TOKEN=<span class="ot">$MY_ACCESS_T
 <p>We then add all changes, commit them, using our <code>rev</code> from earlier, and then push to <code>upstream</code>. The <code>-q</code> keeps this a bit more quiet, and you can control the noisiness of all these different <code>git</code> commands with a judicious sprinkling of <code>-q</code>.</p>
 <h2 id="success">Success!</h2>
 <p>That's it! Commit this all, and push. Travis should now do its magic, and everything will update!</p>
+<h2 id="one-drawback">One Drawback</h2>
+<p>One drawback of this is that if you have a build matrix that builds your project with multiple versions of your platform, you'll end up with the same number of pages builds. Which seems redundant.</p>
+<p>I <em>think</em> I could take advantage of Travis' &quot;deploy&quot; feature to fix this, but I'm not sure how.</p>
 <h2 id="feedback-please">Feedback please</h2>
 <p>I'd love to know if there's a better way to do any of this. In particular, I'd love to add the local git repo rather than the one from GitHub when fetching the <code>upstream</code>, but since Travis checks out a bare repository, it doesn't seem possible. Please <a href="https://github.com/steveklabnik/automatically_update_github_pages_with_travis_example/issues/new">open an issue</a> or PR to show me how to do it better!</p>
