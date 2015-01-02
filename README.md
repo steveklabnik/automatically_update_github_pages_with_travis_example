@@ -70,13 +70,17 @@ TL;DR:
 
 ```bash
 $ gem install travis # install Ruby first if you need to! This might need `sudo`
-$   travs encrypt GH_TOKEN=$MY_ACCESS_TOKEN
+$   travis encrypt GH_TOKEN=$MY_ACCESS_TOKEN
 ```
 
 Where `$MY_ACCESS_TOKEN` is the token you wrote down. Note that I put some
 spaces before `travs`. If you have `bash` configured in this common way,
 this makes sure the command doesn't end up in your Bash History. Can't
 be too safe with those tokens.
+
+(You'll need to have enabled travis for your repo before this, and may need
+to pass an argument `-r username/reponame` if it can't work out the repo
+itself.) 
 
 This will spit out something like this:
 
