@@ -38,8 +38,9 @@ $ <span class="kw">git</span> checkout master</code></pre>
 <h2 id="set-up-travis">Set up Travis</h2>
 <p>Check out <a href="http://docs.travis-ci.com/user/encryption-keys/">this page on encryption with Travis</a>. Here's the TL;DR:</p>
 <pre class="sourceCode bash"><code class="sourceCode bash">$ <span class="kw">gem</span> install travis <span class="co"># install Ruby first if you need to! This might need `sudo`</span>
-$   <span class="kw">travs</span> encrypt GH_TOKEN=<span class="ot">$MY_ACCESS_TOKEN</span></code></pre>
+$   <span class="kw">travis</span> encrypt GH_TOKEN=<span class="ot">$MY_ACCESS_TOKEN</span></code></pre>
 <p>Where <code>$MY_ACCESS_TOKEN</code> is the token you wrote down. Note that I put some spaces before <code>travs</code>. If you have <code>bash</code> configured in this common way, this makes sure the command doesn't end up in your Bash History. Can't be too safe with those tokens.</p>
+<p>(You'll need to have enabled travis for your repo before this, and may need to pass an argument <code>-r username/reponame</code> if it can't work out the repo itself.)</p>
 <p>This will spit out something like this:</p>
 <pre class="text"><code>secure: &quot;oFD/tic8JAwpMXuMDBZXV4ot6w1NLWvHQnrDKmUHSMQJC1cbbrR1p5q8XayfjtmdqQdFQmIfM6YHEKeHw//ypgObWjYS8q00OaaMDXPTdmgr1Ee4nhgkkDihT+kVij0rn96W/QvyAVoaV5hJoyUr3Nhk+mnHEYm3M+Q3LAQglRg=&quot;</code></pre>
 <p>You need to put this in your <code>.travis.yml</code>!</p>
