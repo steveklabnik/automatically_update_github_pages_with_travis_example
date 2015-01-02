@@ -78,6 +78,8 @@ $   <span class="kw">travis</span> encrypt GH_TOKEN=<span class="ot">$MY_ACCESS_
 <p>Okay, next, we need to add a <code>deploy.sh</code> to our repository. You'll need to tweak this slightly for your setup, but here's the basic idea:</p>
 <pre class="sourceCode bash"><code class="sourceCode bash"><span class="co">#!/bin/bash</span>
 
+<span class="kw">set</span> <span class="kw">-o</span> errexit -o nounset
+
 <span class="ot">rev=$(</span><span class="kw">git</span> rev-parse --short HEAD<span class="ot">)</span>
 
 <span class="kw">cd</span> stage/_book
@@ -87,7 +89,8 @@ $   <span class="kw">travis</span> encrypt GH_TOKEN=<span class="ot">$MY_ACCESS_
 <span class="kw">git</span> config user.email <span class="st">&quot;steve@steveklabnik.com&quot;</span>
 
 <span class="kw">git</span> remote add upstream <span class="st">&quot;https://</span><span class="ot">$GH_TOKEN</span><span class="st">@github.com/rust-lang/rust-by-example.git&quot;</span>
-<span class="kw">git</span> fetch upstream <span class="kw">&amp;&amp;</span> <span class="kw">git</span> reset upstream/gh-pages
+<span class="kw">git</span> fetch upstream
+<span class="kw">git</span> reset upstream/gh-pages
 
 <span class="kw">echo</span> <span class="st">&quot;rustbyexample.com&quot;</span> <span class="kw">&gt;</span> CNAME
 
@@ -99,6 +102,12 @@ $   <span class="kw">travis</span> encrypt GH_TOKEN=<span class="ot">$MY_ACCESS_
 <p>Let's do it, paragraph by paragraph:</p>
 <pre class="sourceCode bash"><code class="sourceCode bash"><span class="co">#!/bin/bash</span></code></pre>
 <p>The standard shebang line. We don't really need to set this, as we execute it with <code>bash deploy.sh</code>, but I like to put it in anyway.</p>
+<pre class="sourceCode bash"><code class="sourceCode bash"><span class="kw">set</span> <span class="kw">-o</span> errexit -o nounset</code></pre>
+<p>This sets two options for the shell to make the script more reliable:</p>
+<ul>
+<li><code>errexit</code>: stop executing if any errors occur, by default bash will just continue past any errors to run the next command</li>
+<li><code>nounset</code>: stop executing if an unset variable is encountered, by default bash will use an empty string for the value of such variables.</li>
+</ul>
 <pre class="sourceCode bash"><code class="sourceCode bash"><span class="ot">rev=$(</span><span class="kw">git</span> rev-parse --short HEAD<span class="ot">)</span></code></pre>
 <p>This sets a variable, <code>rev</code>, with the short hash of <code>HEAD</code>. We'll use this later in a commit message.</p>
 <pre class="sourceCode bash"><code class="sourceCode bash"><span class="kw">cd</span> _book</code></pre>
@@ -109,7 +118,8 @@ $   <span class="kw">travis</span> encrypt GH_TOKEN=<span class="ot">$MY_ACCESS_
 <p>First, we initialize a new <code>git</code> repository. Yes, a new one. You'll see.</p>
 <p>We then set our user name and user email. This person will have done the commits that go to <code>gh-pages</code>. It's not a default branch, so don't worry, GitHub doesn't count these commits as contributions for your graph.</p>
 <pre class="sourceCode bash"><code class="sourceCode bash"><span class="kw">git</span> remote add upstream <span class="st">&quot;https://</span><span class="ot">$GH_TOKEN</span><span class="st">@github.com/me/project.git&quot;</span>
-<span class="kw">git</span> fetch upstream <span class="kw">&amp;&amp;</span> <span class="kw">git</span> reset upstream/gh-pages</code></pre>
+<span class="kw">git</span> fetch upstream
+<span class="kw">git</span> reset upstream/gh-pages</code></pre>
 <p>Next, we add a remote, named <code>upstream</code>, and we set it to our project. But we also interpolate that <code>$GH_TOKEN</code> variable, which will allow us to push to this repository later.</p>
 <p>We then <code>fetch</code> it and <code>reset</code> to the <code>gh-pages</code> branch. Now, <code>git</code> sees this new repository as just some files that change your upstream <code>gh-pages</code> branch.</p>
 <pre class="sourceCode bash"><code class="sourceCode bash"><span class="kw">echo</span> <span class="st">&quot;myproject.com&quot;</span> <span class="kw">&gt;</span> CNAME</code></pre>
