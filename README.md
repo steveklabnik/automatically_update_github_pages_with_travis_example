@@ -169,6 +169,8 @@ idea:
 ```bash
 #!/bin/bash
 
+set -o errexit -o nounset
+
 rev=$(git rev-parse --short HEAD)
 
 cd stage/_book
@@ -178,7 +180,8 @@ git config user.name "Steve Klabnik"
 git config user.email "steve@steveklabnik.com"
 
 git remote add upstream "https://$GH_TOKEN@github.com/rust-lang/rust-by-example.git"
-git fetch upstream && git reset upstream/gh-pages
+git fetch upstream
+git reset upstream/gh-pages
 
 echo "rustbyexample.com" > CNAME
 
@@ -197,6 +200,17 @@ Let's do it, paragraph by paragraph:
 
 The standard shebang line. We don't really need to set this, as we execute it
 with `bash deploy.sh`, but I like to put it in anyway.
+
+```bash
+set -o errexit -o nounset
+```
+
+This sets two options for the shell to make the script more reliable:
+
+- `errexit`: stop executing if any errors occur, by default bash will just 
+  continue past any errors to run the next command 
+- `nounset`: stop executing if an unset variable is encountered, by default 
+  bash will use an empty string for the value of such variables. 
 
 ```bash
 rev=$(git rev-parse --short HEAD)
@@ -226,7 +240,8 @@ GitHub doesn't count these commits as contributions for your graph.
 
 ```bash
 git remote add upstream "https://$GH_TOKEN@github.com/me/project.git"
-git fetch upstream && git reset upstream/gh-pages
+git fetch upstream
+git reset upstream/gh-pages
 ```
 
 Next, we add a remote, named `upstream`, and we set it to our project. But
