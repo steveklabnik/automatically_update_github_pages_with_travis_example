@@ -90,6 +90,14 @@ secure: "oFD/tic8JAwpMXuMDBZXV4ot6w1NLWvHQnrDKmUHSMQJC1cbbrR1p5q8XayfjtmdqQdFQmI
 
 You need to put this in your `.travis.yml`!
 
+**Note:** If you append `--add` to the `travis encrypt` command, like this:
+
+```bash
+$   travis encrypt GH_TOKEN=$MY_ACCESS_TOKEN --add
+```
+
+you can avoid having to copy the confguration into the `.travis.yml` file yourself.
+
 ## Edit your .travis.yml
 
 Here's what this should look like:
