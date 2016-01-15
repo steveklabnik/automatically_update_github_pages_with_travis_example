@@ -64,39 +64,9 @@ I could just light the paper on fire afterward. :wink:. It'll never be shown to 
 
 ## Set up Travis
 
-Check out [this page on encryption with
-Travis](http://docs.travis-ci.com/user/encryption-keys/). Here's the
-TL;DR:
+Go to the settings of your repository on travis-ci.org and set an enviroment varible with the name of GH_TOKEN and the value of your personal access token.
 
-```bash
-$ gem install travis # install Ruby first if you need to! This might need `sudo`
-$   travis encrypt GH_TOKEN=$MY_ACCESS_TOKEN
-```
-
-Where `$MY_ACCESS_TOKEN` is the token you wrote down. Note that I put some
-spaces before `travs`. If you have `bash` configured in this common way,
-this makes sure the command doesn't end up in your Bash History. Can't
-be too safe with those tokens.
-
-(You'll need to have enabled travis for your repo before this, and may need
-to pass an argument `-r username/reponame` if it can't work out the repo
-itself.) 
-
-This will spit out something like this:
-
-```text
-secure: "oFD/tic8JAwpMXuMDBZXV4ot6w1NLWvHQnrDKmUHSMQJC1cbbrR1p5q8XayfjtmdqQdFQmIfM6YHEKeHw//ypgObWjYS8q00OaaMDXPTdmgr1Ee4nhgkkDihT+kVij0rn96W/QvyAVoaV5hJoyUr3Nhk+mnHEYm3M+Q3LAQglRg="
-```
-
-You need to put this in your `.travis.yml`!
-
-**Note:** If you append `--add` to the `travis encrypt` command, like this:
-
-```bash
-$   travis encrypt GH_TOKEN=$MY_ACCESS_TOKEN --add
-```
-
-you can avoid having to copy the confguration into the `.travis.yml` file yourself.
+You will need to put this in your `.travis.yml` as `${DEPLOY_KEY}`!
 
 ## Edit your .travis.yml
 
