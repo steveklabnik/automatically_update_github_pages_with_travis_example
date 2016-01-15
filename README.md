@@ -71,13 +71,15 @@ There are multiple ways to do this.
 
 ### Set the variables in the .travis.yml file
 
-With Node.js and Python 3.x installed:
+*With Node.js and Python 3.x installed:*
+
 ´´´bash
 $ npm install travis-encrypt -g
 $  travis-encrypt -r username/repository -k GH_TOKEN -v [the token you created before]
 ´´´
 
-With Ruby installed:
+*With Ruby installed:*
+
 ```bash
 $ gem install travis
 $   travis encrypt -r username/reponame GH_TOKEN=[the token you created before] --add
