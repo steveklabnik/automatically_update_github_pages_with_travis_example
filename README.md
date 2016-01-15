@@ -36,7 +36,7 @@ You want to make sure your branch already exists.
 
 ```bash
 $ git checkout master
-$ git checkout -b gh-pages
+$ git checkout -b --orphan gh-pages 
 $ git push origin -u gh-pages
 $ git checkout master
 ```
@@ -80,7 +80,7 @@ be too safe with those tokens.
 
 (You'll need to have enabled travis for your repo before this, and may need
 to pass an argument `-r username/reponame` if it can't work out the repo
-itself.) 
+itself.)
 
 This will spit out something like this:
 
@@ -215,10 +215,10 @@ set -o errexit -o nounset
 
 This sets two options for the shell to make the script more reliable:
 
-- `errexit`: stop executing if any errors occur, by default bash will just 
-  continue past any errors to run the next command 
-- `nounset`: stop executing if an unset variable is encountered, by default 
-  bash will use an empty string for the value of such variables. 
+- `errexit`: stop executing if any errors occur, by default bash will just
+  continue past any errors to run the next command
+- `nounset`: stop executing if an unset variable is encountered, by default
+  bash will use an empty string for the value of such variables.
 
 ```bash
 rev=$(git rev-parse --short HEAD)
