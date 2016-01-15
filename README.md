@@ -98,11 +98,13 @@ Here's what this should look like:
 
 ```yaml
 language: something
+install:
+  - npm install
 script:
   - make check
   - make generate
 after_success:
-  - test $TRAVIS_PULL_REQUEST == "false" && test $TRAVIS_BRANCH == "master" && bash deploy.sh
+  - bash deploy.sh
 env:
   global:
     - secure: "oFD/tic8JAwpMXuMDBZXV4ot6w1NLWvHQnrDKmUHSMQJC1cbbrR1p5q8XayfjtmdqQdFQmIfM6YHEKeHw//ypgObWjYS8q00OaaMDXPTdmgr1Ee4nhgkkDihT+kVij0rn96W/QvyAVoaV5hJoyUr3Nhk+mnHEYm3M+Q3LAQglRg="
@@ -116,14 +118,17 @@ language: something
 
 This should be set to whatever the language is of your project. What happens
 if your project's build tool is different than your project itself? You
-may need to add an `install` line to install the other tool.
+may need to add an `install` line to install the other tools.
+Like for example things listed in package.json.
 
-As an example, if you have a JavaScript project that uses
-[gitbook](https://www.gitbook.com/), you might have this:
+This should look something like this if you use Node.js:
 
 ```yaml
 language: node_js
-install: npm install gitbook
+node_js:
+  - "4.1"
+install:
+  - npm install
 ```
 
 Next, our actual build:
@@ -135,19 +140,27 @@ script:
 ```
 
 This changes based on whatever your build actually is. I show this section
-because you will generally want two commands: one to build your project, and
-one to build the actual documentation.
+because you will generally want to run more than one command: one to run the tests
+one to build your project, and one to build the actual documentation.
+
+```yaml
+after_success:
+  - bash deploy.sh
+```
+
+Ok so now we have a successful build so we want to start the deploy.
+Note that we can have a different approach:
 
 ```yaml
 after_success:
   - test $TRAVIS_PULL_REQUEST == "false" && test $TRAVIS_BRANCH == "master" && bash deploy.sh
 ```
 
-If we have a successful build, we want to check out where we are. We only want
-to update Github Pages if we're building the master branch of the original
-repository, so we have to check `$TRAVIS_PULL_REQUEST` and `$TRAVIS_BRANCH`.
+Here we want to check out where we are. We only want to update Github Pages if
+we're building the master branch of the original repository, so we have to check
+`$TRAVIS_PULL_REQUEST` and `$TRAVIS_BRANCH`.
 
-If we are, we run `bash deploy.sh`. What's the contents of `deploy.sh`?
+If we are here, we run `bash deploy.sh`. What's the contents of `deploy.sh`?
 We'll talk about that in a moment. We have one more line to cover:
 
 ```yaml
@@ -172,6 +185,12 @@ idea:
 #!/bin/bash
 
 set -o errexit -o nounset
+
+if [ "$TRAVIS_BRANCH" != "master" ]
+then
+  echo "This commit was made against the $TRAVIS_BRANCH and not the master! No deploy!"
+  exit 0
+fi
 
 rev=$(git rev-parse --short HEAD)
 
@@ -215,6 +234,26 @@ This sets two options for the shell to make the script more reliable:
   bash will use an empty string for the value of such variables.
 
 ```bash
+if [ "$TRAVIS_BRANCH" != "master" ]
+then
+  echo "This commit was made against the $TRAVIS_BRANCH and not the master! No deploy!"
+  exit 0
+fi
+```
+
+Here we ensure that we only deploy when we commit against the master branch,
+if not we just simply abort the deploy, no errors. So this way we can see the
+result of the tests when we make pull request between different branches or
+commit against a different branch than the master.
+
+Note: This only works if in .travis.yml we used the unconditional deploy.
+
+```yaml
+after_success:
+  - bash deploy.sh
+```
+
+```bash
 rev=$(git rev-parse --short HEAD)
 ```
 
@@ -225,8 +264,8 @@ this later in a commit message.
 cd _book
 ```
 
-We need to `cd` into wherever our website built. With Gitbook, that's `_book`,
-with Jekyll, it's `_site`. But do whatever.
+We need to `cd` into wherever our website built. With Jekyll, it's `_site`.
+But do whatever.
 
 ```bash
 git init
