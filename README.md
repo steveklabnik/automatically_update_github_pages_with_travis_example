@@ -1,9 +1,8 @@
-# Automatically Update Github Pages with Travis Example
+# Automatically Update Github Pages with Travis
+[![Build Status](https://travis-ci.org/steveklabnik/automatically_update_github_pages_with_travis_example.svg?branch=master)](https://travis-ci.org/steveklabnik/automatically_update_github_pages_with_travis_example)
 
 Do you want to update Github Pages automatically, and use Travis CI? You've
 come to the right place.
-
-[![Build Status](https://travis-ci.org/steveklabnik/automatically_update_github_pages_with_travis_example.svg?branch=master)](https://travis-ci.org/steveklabnik/automatically_update_github_pages_with_travis_example)
 
 Both versions:
 
@@ -24,11 +23,9 @@ Our source files end up on one branch, but we need to move the generated
 files to another branch. And of course, we don't want to just do this
 on every build, but on successful CI builds of master. Whew!
 
-This repository follows its own advice. You can see it here, here, and here.
-
 # The solution
 
-Follow these steps:
+Follow these steps.
 
 ## Ensure you have `gh-pages`
 
@@ -36,7 +33,7 @@ You want to make sure your branch already exists.
 
 ```bash
 $ git checkout master
-$ git checkout -b gh-pages
+$ git checkout -b --orphan gh-pages
 $ git push origin -u gh-pages
 $ git checkout master
 ```
@@ -60,55 +57,56 @@ GitHub will create the token, and show you a flash with the value.
 **THIS IS THE ONLY TIME YOU GET TO SEE THIS SO DON'T CLICK AWAY IMMEDIATELY!**
 
 You'll need to copy this token into someplace you trust. I wrote mine down, so
-I could just light the paper on fire afterward. :wink:. It'll never be shown to you after this time, so it's important to double-check your work.
+I could just light the paper on fire afterward. :wink:. It'll never be shown to
+you after this time, so it's important to double-check your work.
 
 ## Set up Travis
 
-Check out [this page on encryption with
-Travis](http://docs.travis-ci.com/user/encryption-keys/). Here's the
-TL;DR:
+There are multiple ways to do this.
+
+### Set the variables on the Travis-CI dashboard
+
+ - Go to the settings page of your repository on https://travis-ci.org/
+ - In the Environment Variables section set a variable with the name of `GH_TOKEN` and the value of your personal access token.
+
+### Set the variables in the .travis.yml file
+
+*With Node.js and Python 3.x installed:*
+
+´´´bash
+$ npm install travis-encrypt -g
+$  travis-encrypt -r username/repository -k GH_TOKEN -v [the token you created before]
+´´´
+
+*With Ruby installed:*
 
 ```bash
-$ gem install travis # install Ruby first if you need to! This might need `sudo`
-$   travis encrypt GH_TOKEN=$MY_ACCESS_TOKEN
+$ gem install travis
+$   travis encrypt -r username/reponame GH_TOKEN=[the token you created before] --add
 ```
 
-Where `$MY_ACCESS_TOKEN` is the token you wrote down. Note that I put some
-spaces before `travs`. If you have `bash` configured in this common way,
-this makes sure the command doesn't end up in your Bash History. Can't
-be too safe with those tokens.
+Note:  that I put some spaces before the `travis` command. If you have `bash` configured in
+this common way, this makes sure the command doesn't end up in your Bash History.
+Can't be too safe with those tokens.
 
-(You'll need to have enabled travis for your repo before this, and may need
-to pass an argument `-r username/reponame` if it can't work out the repo
-itself.) 
+Note: You'll need to have enabled travis for your repo before this.
 
-This will spit out something like this:
-
-```text
-secure: "oFD/tic8JAwpMXuMDBZXV4ot6w1NLWvHQnrDKmUHSMQJC1cbbrR1p5q8XayfjtmdqQdFQmIfM6YHEKeHw//ypgObWjYS8q00OaaMDXPTdmgr1Ee4nhgkkDihT+kVij0rn96W/QvyAVoaV5hJoyUr3Nhk+mnHEYm3M+Q3LAQglRg="
-```
-
-You need to put this in your `.travis.yml`!
-
-**Note:** If you append `--add` to the `travis encrypt` command, like this:
-
-```bash
-$   travis encrypt GH_TOKEN=$MY_ACCESS_TOKEN --add
-```
-
-you can avoid having to copy the confguration into the `.travis.yml` file yourself.
+Check out [this page](http://docs.travis-ci.com/user/encryption-keys/) to read
+more about variable encryption in Travis.
 
 ## Edit your .travis.yml
 
 Here's what this should look like:
 
-```bash
+```yaml
 language: something
+install:
+  - npm install
 script:
   - make check
   - make generate
 after_success:
-  - test $TRAVIS_PULL_REQUEST == "false" && test $TRAVIS_BRANCH == "master" && bash deploy.sh
+  - bash deploy.sh
 env:
   global:
     - secure: "oFD/tic8JAwpMXuMDBZXV4ot6w1NLWvHQnrDKmUHSMQJC1cbbrR1p5q8XayfjtmdqQdFQmIfM6YHEKeHw//ypgObWjYS8q00OaaMDXPTdmgr1Ee4nhgkkDihT+kVij0rn96W/QvyAVoaV5hJoyUr3Nhk+mnHEYm3M+Q3LAQglRg="
@@ -122,14 +120,17 @@ language: something
 
 This should be set to whatever the language is of your project. What happens
 if your project's build tool is different than your project itself? You
-may need to add an `install` line to install the other tool.
+may need to add an `install` line to install the other tools.
+Like for example things listed in package.json.
 
-As an example, if you have a JavaScript project that uses
-[gitbook](https://www.gitbook.com/), you might have this:
+This should look something like this if you use Node.js:
 
 ```yaml
 language: node_js
-install: npm install gitbook
+node_js:
+  - "4.1"
+install:
+  - npm install
 ```
 
 Next, our actual build:
@@ -141,19 +142,27 @@ script:
 ```
 
 This changes based on whatever your build actually is. I show this section
-because you will generally want two commands: one to build your project, and
-one to build the actual documentation.
+because you will generally want to run more than one command: one to run the tests
+one to build your project, and one to build the actual documentation.
+
+```yaml
+after_success:
+  - bash deploy.sh
+```
+
+Ok so now we have a successful build so we want to start the deploy.
+Note that we can have a different approach:
 
 ```yaml
 after_success:
   - test $TRAVIS_PULL_REQUEST == "false" && test $TRAVIS_BRANCH == "master" && bash deploy.sh
 ```
 
-If we have a successful build, we want to check out where we are. We only want
-to update Github Pages if we're building the master branch of the original
-repository, so we have to check `$TRAVIS_PULL_REQUEST` and `$TRAVIS_BRANCH`.
+Here we want to check out where we are. We only want to update Github Pages if
+we're building the master branch of the original repository, so we have to check
+`$TRAVIS_PULL_REQUEST` and `$TRAVIS_BRANCH`.
 
-If we are, we run `bash deploy.sh`. What's the contents of `deploy.sh`?
+If we are here, we run `bash deploy.sh`. What's the contents of `deploy.sh`?
 We'll talk about that in a moment. We have one more line to cover:
 
 ```yaml
@@ -178,6 +187,12 @@ idea:
 #!/bin/bash
 
 set -o errexit -o nounset
+
+if [ "$TRAVIS_BRANCH" != "master" ]
+then
+  echo "This commit was made against the $TRAVIS_BRANCH and not the master! No deploy!"
+  exit 0
+fi
 
 rev=$(git rev-parse --short HEAD)
 
@@ -215,10 +230,30 @@ set -o errexit -o nounset
 
 This sets two options for the shell to make the script more reliable:
 
-- `errexit`: stop executing if any errors occur, by default bash will just 
-  continue past any errors to run the next command 
-- `nounset`: stop executing if an unset variable is encountered, by default 
-  bash will use an empty string for the value of such variables. 
+- `errexit`: stop executing if any errors occur, by default bash will just
+  continue past any errors to run the next command
+- `nounset`: stop executing if an unset variable is encountered, by default
+  bash will use an empty string for the value of such variables.
+
+```bash
+if [ "$TRAVIS_BRANCH" != "master" ]
+then
+  echo "This commit was made against the $TRAVIS_BRANCH and not the master! No deploy!"
+  exit 0
+fi
+```
+
+Here we ensure that we only deploy when we commit against the master branch,
+if not we just simply abort the deploy, no errors. So this way we can see the
+result of the tests when we make pull request between different branches or
+commit against a different branch than the master.
+
+Note: This only works if in .travis.yml we used the unconditional deploy.
+
+```yaml
+after_success:
+  - bash deploy.sh
+```
 
 ```bash
 rev=$(git rev-parse --short HEAD)
@@ -231,8 +266,8 @@ this later in a commit message.
 cd _book
 ```
 
-We need to `cd` into wherever our website built. With Gitbook, that's `_book`,
-with Jekyll, it's `_site`. But do whatever.
+We need to `cd` into wherever our website built. With Jekyll, it's `_site`.
+But do whatever.
 
 ```bash
 git init
