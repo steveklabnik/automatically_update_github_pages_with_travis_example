@@ -1,6 +1,6 @@
-<h1 id="automatically-update-github-pages-with-travis-example">Automatically Update Github Pages with Travis Example</h1>
-<p>Do you want to update Github Pages automatically, and use Travis CI? You've come to the right place.</p>
+<h1 id="automatically-update-github-pages-with-travis">Automatically Update Github Pages with Travis</h1>
 <p><a href="https://travis-ci.org/steveklabnik/automatically_update_github_pages_with_travis_example"><img src="https://travis-ci.org/steveklabnik/automatically_update_github_pages_with_travis_example.svg?branch=master" alt="Build Status" /></a></p>
+<p>Do you want to update Github Pages automatically, and use Travis CI? You've come to the right place.</p>
 <p>Both versions:</p>
 <ul>
 <li><a href="http://steveklabnik.github.io/automatically_update_github_pages_with_travis_example/">rendered</a></li>
@@ -15,13 +15,12 @@
 <li><code>gh-pages</code> is the default branch for Github Pages.</li>
 </ol>
 <p>Our source files end up on one branch, but we need to move the generated files to another branch. And of course, we don't want to just do this on every build, but on successful CI builds of master. Whew!</p>
-<p>This repository follows its own advice. You can see it here, here, and here.</p>
 <h1 id="the-solution">The solution</h1>
-<p>Follow these steps:</p>
+<p>Follow these steps.</p>
 <h2 id="ensure-you-have-gh-pages">Ensure you have <code>gh-pages</code></h2>
 <p>You want to make sure your branch already exists.</p>
 <div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash">$ <span class="kw">git</span> checkout master
-$ <span class="kw">git</span> checkout -b gh-pages
+$ <span class="kw">git</span> checkout -b --orphan gh-pages
 $ <span class="kw">git</span> push origin -u gh-pages
 $ <span class="kw">git</span> checkout master</code></pre></div>
 <p>Easy enough.</p>
@@ -37,43 +36,55 @@ $ <span class="kw">git</span> checkout master</code></pre></div>
 <p><strong>THIS IS THE ONLY TIME YOU GET TO SEE THIS SO DON'T CLICK AWAY IMMEDIATELY!</strong></p>
 <p>You'll need to copy this token into someplace you trust. I wrote mine down, so I could just light the paper on fire afterward. :wink:. It'll never be shown to you after this time, so it's important to double-check your work.</p>
 <h2 id="set-up-travis">Set up Travis</h2>
-<p>Check out <a href="http://docs.travis-ci.com/user/encryption-keys/">this page on encryption with Travis</a>. Here's the TL;DR:</p>
-<div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash">$ <span class="kw">gem</span> install travis <span class="co"># install Ruby first if you need to! This might need `sudo`</span>
-$   <span class="kw">travis</span> encrypt GH_TOKEN=<span class="ot">$MY_ACCESS_TOKEN</span></code></pre></div>
-<p>Where <code>$MY_ACCESS_TOKEN</code> is the token you wrote down. Note that I put some spaces before <code>travs</code>. If you have <code>bash</code> configured in this common way, this makes sure the command doesn't end up in your Bash History. Can't be too safe with those tokens.</p>
-<p>(You'll need to have enabled travis for your repo before this, and may need to pass an argument <code>-r username/reponame</code> if it can't work out the repo itself.)</p>
-<p>This will spit out something like this:</p>
-<pre class="text"><code>secure: &quot;oFD/tic8JAwpMXuMDBZXV4ot6w1NLWvHQnrDKmUHSMQJC1cbbrR1p5q8XayfjtmdqQdFQmIfM6YHEKeHw//ypgObWjYS8q00OaaMDXPTdmgr1Ee4nhgkkDihT+kVij0rn96W/QvyAVoaV5hJoyUr3Nhk+mnHEYm3M+Q3LAQglRg=&quot;</code></pre>
-<p>You need to put this in your <code>.travis.yml</code>!</p>
-<p><strong>Note:</strong> If you append <code>--add</code> to the <code>travis encrypt</code> command, like this:</p>
-<div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash">$   <span class="kw">travis</span> encrypt GH_TOKEN=<span class="ot">$MY_ACCESS_TOKEN</span> --add</code></pre></div>
-<p>you can avoid having to copy the confguration into the <code>.travis.yml</code> file yourself.</p>
+<p>There are multiple ways to do this.</p>
+<h3 id="set-the-variables-on-the-travis-ci-dashboard">Set the variables on the Travis-CI dashboard</h3>
+<ul>
+<li>Go to the settings page of your repository on https://travis-ci.org/</li>
+<li>In the Environment Variables section set a variable with the name of <code>GH_TOKEN</code> and the value of your personal access token.</li>
+</ul>
+<h3 id="set-the-variables-in-the-.travis.yml-file">Set the variables in the .travis.yml file</h3>
+<p><em>With Node.js and Python 3.x installed:</em></p>
+<p>´´´bash $ npm install travis-encrypt -g $ travis-encrypt -r username/repository -k GH_TOKEN -v [the token you created before] ´´´</p>
+<p><em>With Ruby installed:</em></p>
+<div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash">$ <span class="kw">gem</span> install travis
+$   <span class="kw">travis</span> encrypt -r username/reponame GH_TOKEN=[the token you created before] --add</code></pre></div>
+<p>Note: that I put some spaces before the <code>travis</code> command. If you have <code>bash</code> configured in this common way, this makes sure the command doesn't end up in your Bash History. Can't be too safe with those tokens.</p>
+<p>Note: You'll need to have enabled travis for your repo before this.</p>
+<p>Check out <a href="http://docs.travis-ci.com/user/encryption-keys/">this page</a> to read more about variable encryption in Travis.</p>
 <h2 id="edit-your-.travis.yml">Edit your .travis.yml</h2>
 <p>Here's what this should look like:</p>
-<div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="kw">language</span>: something
-<span class="kw">script</span>:
+<div class="sourceCode"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span class="fu">language:</span> something
+<span class="fu">install:</span>
+  <span class="kw">-</span> npm install
+<span class="fu">script:</span>
   <span class="kw">-</span> make check
   <span class="kw">-</span> make generate
-<span class="kw">after_success</span>:
-  <span class="kw">-</span> test <span class="ot">$TRAVIS_PULL_REQUEST</span> == <span class="st">&quot;false&quot;</span> <span class="kw">&amp;&amp;</span> <span class="kw">test</span> <span class="ot">$TRAVIS_BRANCH</span> == <span class="st">&quot;master&quot;</span> <span class="kw">&amp;&amp;</span> <span class="kw">bash</span> deploy.sh
-<span class="kw">env</span>:
-  <span class="kw">global</span>:
-    <span class="kw">-</span> secure: <span class="st">&quot;oFD/tic8JAwpMXuMDBZXV4ot6w1NLWvHQnrDKmUHSMQJC1cbbrR1p5q8XayfjtmdqQdFQmIfM6YHEKeHw//ypgObWjYS8q00OaaMDXPTdmgr1Ee4nhgkkDihT+kVij0rn96W/QvyAVoaV5hJoyUr3Nhk+mnHEYm3M+Q3LAQglRg=&quot;</span></code></pre></div>
+<span class="fu">after_success:</span>
+  <span class="kw">-</span> bash deploy.sh
+<span class="fu">env:</span>
+  <span class="fu">global:</span>
+    <span class="kw">-</span> <span class="fu">secure:</span> <span class="st">&quot;oFD/tic8JAwpMXuMDBZXV4ot6w1NLWvHQnrDKmUHSMQJC1cbbrR1p5q8XayfjtmdqQdFQmIfM6YHEKeHw//ypgObWjYS8q00OaaMDXPTdmgr1Ee4nhgkkDihT+kVij0rn96W/QvyAVoaV5hJoyUr3Nhk+mnHEYm3M+Q3LAQglRg=&quot;</span></code></pre></div>
 <p>Let's go over this, line by line:</p>
 <div class="sourceCode"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span class="fu">language:</span> something</code></pre></div>
-<p>This should be set to whatever the language is of your project. What happens if your project's build tool is different than your project itself? You may need to add an <code>install</code> line to install the other tool.</p>
-<p>As an example, if you have a JavaScript project that uses <a href="https://www.gitbook.com/">gitbook</a>, you might have this:</p>
+<p>This should be set to whatever the language is of your project. What happens if your project's build tool is different than your project itself? You may need to add an <code>install</code> line to install the other tools. Like for example things listed in package.json.</p>
+<p>This should look something like this if you use Node.js:</p>
 <div class="sourceCode"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span class="fu">language:</span> node_js
-<span class="fu">install:</span> npm install gitbook</code></pre></div>
+<span class="fu">node_js:</span>
+  <span class="kw">-</span> <span class="st">&quot;4.1&quot;</span>
+<span class="fu">install:</span>
+  <span class="kw">-</span> npm install</code></pre></div>
 <p>Next, our actual build:</p>
 <div class="sourceCode"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span class="fu">script:</span>
   <span class="kw">-</span> make check
   <span class="kw">-</span> make generate</code></pre></div>
-<p>This changes based on whatever your build actually is. I show this section because you will generally want two commands: one to build your project, and one to build the actual documentation.</p>
+<p>This changes based on whatever your build actually is. I show this section because you will generally want to run more than one command: one to run the tests one to build your project, and one to build the actual documentation.</p>
+<div class="sourceCode"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span class="fu">after_success:</span>
+  <span class="kw">-</span> bash deploy.sh</code></pre></div>
+<p>Ok so now we have a successful build so we want to start the deploy. Note that we can have a different approach:</p>
 <div class="sourceCode"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span class="fu">after_success:</span>
   <span class="kw">-</span> test $TRAVIS_PULL_REQUEST == <span class="st">&quot;false&quot;</span> &amp;&amp; test $TRAVIS_BRANCH == <span class="st">&quot;master&quot;</span> &amp;&amp; bash deploy.sh</code></pre></div>
-<p>If we have a successful build, we want to check out where we are. We only want to update Github Pages if we're building the master branch of the original repository, so we have to check <code>$TRAVIS_PULL_REQUEST</code> and <code>$TRAVIS_BRANCH</code>.</p>
-<p>If we are, we run <code>bash deploy.sh</code>. What's the contents of <code>deploy.sh</code>? We'll talk about that in a moment. We have one more line to cover:</p>
+<p>Here we want to check out where we are. We only want to update Github Pages if we're building the master branch of the original repository, so we have to check <code>$TRAVIS_PULL_REQUEST</code> and <code>$TRAVIS_BRANCH</code>.</p>
+<p>If we are here, we run <code>bash deploy.sh</code>. What's the contents of <code>deploy.sh</code>? We'll talk about that in a moment. We have one more line to cover:</p>
 <div class="sourceCode"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span class="fu">env:</span>
   <span class="fu">global:</span>
     <span class="kw">-</span> <span class="fu">secure:</span> <span class="st">&quot;oFD/tic8JAwpMXuMDBZXV4ot6w1NLWvHQnrDKmUHSMQJC1cbbrR1p5q8XayfjtmdqQdFQmIfM6YHEKeHw//ypgObWjYS8q00OaaMDXPTdmgr1Ee4nhgkkDihT+kVij0rn96W/QvyAVoaV5hJoyUr3Nhk+mnHEYm3M+Q3LAQglRg=&quot;</span></code></pre></div>
@@ -83,6 +94,12 @@ $   <span class="kw">travis</span> encrypt GH_TOKEN=<span class="ot">$MY_ACCESS_
 <div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="co">#!/bin/bash</span>
 
 <span class="kw">set</span> <span class="kw">-o</span> errexit -o nounset
+
+<span class="kw">if [</span> <span class="st">&quot;</span><span class="ot">$TRAVIS_BRANCH</span><span class="st">&quot;</span> <span class="ot">!=</span> <span class="st">&quot;master&quot;</span><span class="kw"> ]</span>
+<span class="kw">then</span>
+  <span class="kw">echo</span> <span class="st">&quot;This commit was made against the </span><span class="ot">$TRAVIS_BRANCH</span><span class="st"> and not the master! No deploy!&quot;</span>
+  <span class="kw">exit</span> 0
+<span class="kw">fi</span>
 
 <span class="ot">rev=$(</span><span class="kw">git</span> rev-parse --short HEAD<span class="ot">)</span>
 
@@ -112,10 +129,19 @@ $   <span class="kw">travis</span> encrypt GH_TOKEN=<span class="ot">$MY_ACCESS_
 <li><code>errexit</code>: stop executing if any errors occur, by default bash will just continue past any errors to run the next command</li>
 <li><code>nounset</code>: stop executing if an unset variable is encountered, by default bash will use an empty string for the value of such variables.</li>
 </ul>
+<div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="kw">if [</span> <span class="st">&quot;</span><span class="ot">$TRAVIS_BRANCH</span><span class="st">&quot;</span> <span class="ot">!=</span> <span class="st">&quot;master&quot;</span><span class="kw"> ]</span>
+<span class="kw">then</span>
+  <span class="kw">echo</span> <span class="st">&quot;This commit was made against the </span><span class="ot">$TRAVIS_BRANCH</span><span class="st"> and not the master! No deploy!&quot;</span>
+  <span class="kw">exit</span> 0
+<span class="kw">fi</span></code></pre></div>
+<p>Here we ensure that we only deploy when we commit against the master branch, if not we just simply abort the deploy, no errors. So this way we can see the result of the tests when we make pull request between different branches or commit against a different branch than the master.</p>
+<p>Note: This only works if in .travis.yml we used the unconditional deploy.</p>
+<div class="sourceCode"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span class="fu">after_success:</span>
+  <span class="kw">-</span> bash deploy.sh</code></pre></div>
 <div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="ot">rev=$(</span><span class="kw">git</span> rev-parse --short HEAD<span class="ot">)</span></code></pre></div>
 <p>This sets a variable, <code>rev</code>, with the short hash of <code>HEAD</code>. We'll use this later in a commit message.</p>
 <div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="kw">cd</span> _book</code></pre></div>
-<p>We need to <code>cd</code> into wherever our website built. With Gitbook, that's <code>_book</code>, with Jekyll, it's <code>_site</code>. But do whatever.</p>
+<p>We need to <code>cd</code> into wherever our website built. With Jekyll, it's <code>_site</code>. But do whatever.</p>
 <div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="kw">git</span> init
 <span class="kw">git</span> config user.name <span class="st">&quot;Steve Klabnik&quot;</span>
 <span class="kw">git</span> config user.email <span class="st">&quot;steve@steveklabnik.com&quot;</span></code></pre></div>
