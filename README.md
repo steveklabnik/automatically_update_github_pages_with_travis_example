@@ -1,9 +1,8 @@
-# Automatically Update Github Pages with Travis Example
+# Automatically Update Github Pages with Travis
+[![Build Status](https://travis-ci.org/steveklabnik/automatically_update_github_pages_with_travis_example.svg?branch=master)](https://travis-ci.org/steveklabnik/automatically_update_github_pages_with_travis_example)
 
 Do you want to update Github Pages automatically, and use Travis CI? You've
 come to the right place.
-
-[![Build Status](https://travis-ci.org/steveklabnik/automatically_update_github_pages_with_travis_example.svg?branch=master)](https://travis-ci.org/steveklabnik/automatically_update_github_pages_with_travis_example)
 
 Both versions:
 
@@ -24,11 +23,9 @@ Our source files end up on one branch, but we need to move the generated
 files to another branch. And of course, we don't want to just do this
 on every build, but on successful CI builds of master. Whew!
 
-This repository follows its own advice. You can see it here, here, and here.
-
 # The solution
 
-Follow these steps:
+Follow these steps.
 
 ## Ensure you have `gh-pages`
 
@@ -36,7 +33,7 @@ You want to make sure your branch already exists.
 
 ```bash
 $ git checkout master
-$ git checkout -b --orphan gh-pages 
+$ git checkout -b --orphan gh-pages
 $ git push origin -u gh-pages
 $ git checkout master
 ```
@@ -60,49 +57,46 @@ GitHub will create the token, and show you a flash with the value.
 **THIS IS THE ONLY TIME YOU GET TO SEE THIS SO DON'T CLICK AWAY IMMEDIATELY!**
 
 You'll need to copy this token into someplace you trust. I wrote mine down, so
-I could just light the paper on fire afterward. :wink:. It'll never be shown to you after this time, so it's important to double-check your work.
+I could just light the paper on fire afterward. :wink:. It'll never be shown to
+you after this time, so it's important to double-check your work.
 
 ## Set up Travis
 
-Check out [this page on encryption with
-Travis](http://docs.travis-ci.com/user/encryption-keys/). Here's the
-TL;DR:
+There are multiple ways to do this.
 
+### Set the variables on the Travis-CI dashboard
+
+ - Go to the settings page of your repository on https://travis-ci.org/
+ - In the Environment Variables section set a variable with the name of `GH_TOKEN` and the value of your personal access token.
+
+### Set the variables in the .travis.yml file
+
+With Node.js and Python 3.x installed:
+´´´bash
+$ npm install travis-encrypt -g
+$  travis-encrypt -r username/repository -k GH_TOKEN -v [the token you created before]
+´´´
+
+With Ruby installed:
 ```bash
-$ gem install travis # install Ruby first if you need to! This might need `sudo`
-$   travis encrypt GH_TOKEN=$MY_ACCESS_TOKEN
+$ gem install travis
+$   travis encrypt -r username/reponame GH_TOKEN=[the token you created before] --add
 ```
 
-Where `$MY_ACCESS_TOKEN` is the token you wrote down. Note that I put some
-spaces before `travs`. If you have `bash` configured in this common way,
-this makes sure the command doesn't end up in your Bash History. Can't
-be too safe with those tokens.
+Note:  that I put some spaces before the `travis` command. If you have `bash` configured in
+this common way, this makes sure the command doesn't end up in your Bash History.
+Can't be too safe with those tokens.
 
-(You'll need to have enabled travis for your repo before this, and may need
-to pass an argument `-r username/reponame` if it can't work out the repo
-itself.)
+Note: You'll need to have enabled travis for your repo before this.
 
-This will spit out something like this:
-
-```text
-secure: "oFD/tic8JAwpMXuMDBZXV4ot6w1NLWvHQnrDKmUHSMQJC1cbbrR1p5q8XayfjtmdqQdFQmIfM6YHEKeHw//ypgObWjYS8q00OaaMDXPTdmgr1Ee4nhgkkDihT+kVij0rn96W/QvyAVoaV5hJoyUr3Nhk+mnHEYm3M+Q3LAQglRg="
-```
-
-You need to put this in your `.travis.yml`!
-
-**Note:** If you append `--add` to the `travis encrypt` command, like this:
-
-```bash
-$   travis encrypt GH_TOKEN=$MY_ACCESS_TOKEN --add
-```
-
-you can avoid having to copy the confguration into the `.travis.yml` file yourself.
+Check out [this page](http://docs.travis-ci.com/user/encryption-keys/) to read
+more about variable encryption in Travis.
 
 ## Edit your .travis.yml
 
 Here's what this should look like:
 
-```bash
+```yaml
 language: something
 script:
   - make check
