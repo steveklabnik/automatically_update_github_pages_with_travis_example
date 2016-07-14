@@ -44,7 +44,8 @@ $ <span class="kw">git</span> checkout master</code></pre></div>
 </ul>
 <h3 id="set-the-variables-in-the-.travis.yml-file">Set the variables in the .travis.yml file</h3>
 <p><em>With Node.js and Python 3.x installed:</em></p>
-<p>´´´bash $ npm install travis-encrypt -g $ travis-encrypt -r username/repository -k GH_TOKEN -v [the token you created before] ´´´</p>
+<div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash">$ <span class="kw">npm</span> install travis-encrypt -g
+$  <span class="kw">travis-encrypt</span> -r username/repository -k GH_TOKEN -v [the token you created before]</code></pre></div>
 <p><em>With Ruby installed:</em></p>
 <div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash">$ <span class="kw">gem</span> install travis
 $   <span class="kw">travis</span> encrypt -r username/reponame GH_TOKEN=[the token you created before] --add</code></pre></div>
