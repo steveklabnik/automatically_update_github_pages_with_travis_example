@@ -73,10 +73,10 @@ There are multiple ways to do this.
 
 *With Node.js and Python 3.x installed:*
 
-´´´bash
+```bash
 $ npm install travis-encrypt -g
 $  travis-encrypt -r username/repository -k GH_TOKEN -v [the token you created before]
-´´´
+```
 
 *With Ruby installed:*
 
