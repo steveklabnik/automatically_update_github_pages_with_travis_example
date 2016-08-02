@@ -33,7 +33,7 @@ You want to make sure your branch already exists.
 
 ```bash
 $ git checkout master
-$ git checkout -b --orphan gh-pages
+$ git checkout --orphan gh-pages
 $ git push origin -u gh-pages
 $ git checkout master
 ```
