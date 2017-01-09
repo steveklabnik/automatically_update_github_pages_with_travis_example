@@ -75,7 +75,7 @@ There are multiple ways to do this.
 
 ```bash
 $ npm install travis-encrypt -g
-$  travis-encrypt -r username/repository -k GH_TOKEN -v [the token you created before]
+$  travis-encrypt -r username/repository GH_TOKEN=[the token you created before]
 ```
 
 *With Ruby installed:*
