@@ -14,3 +14,4 @@ generate-ci:
 	mkdir -p _site
 	./pandoc -o _site/index.html README.md
 	cp -r img _site
+
