@@ -85,6 +85,30 @@ $ gem install travis
 $   travis encrypt -r username/reponame GH_TOKEN=[the token you created before] --add
 ```
 
+*Except the above two solution, another online yet easy way:*
+Go directly to : https://npm.runkit.com/travis-encrypt  Run the code like this, we will get the encrpted value by the `console.log`
+```javascript
+var encrypt = require('travis-encrypt');
+encrypt({
+  repo: 'pwmckenna/node-travis-encrypt',
+  data: 'EXAMPLE_ENV_VARIABLE=asdf'
+}, function (err, blob) {
+  // do something with the encrypted data blob...
+});
+
+// also supports encrypting for private travis pro repos,
+// though it needs your github credentials to login to travis pro.
+encrypt({
+  repo: 'pwmckenna/private-repo',
+  data: 'EXAMPLE_ENV_VARIABLE=asdf',
+  username: 'username',
+  password: 'password'
+}, function (err, blob) {
+  // do something with the encrypted data blob...
+  console.log(blob)
+});
+```
+
 Note:  that I put some spaces before the `travis` command. If you have `bash` configured in
 this common way, this makes sure the command doesn't end up in your Bash History.
 Can't be too safe with those tokens.
